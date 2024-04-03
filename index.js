@@ -3,19 +3,14 @@ const app = new koa();
 const port = 3000;
 
 app.use(async (ctx, next) => {
-  console.log(ctx);
+  const startMs = Date.now();
   await next();
+  console.log(`${Date.now() - startMs} ms`);
+  console.log(ctx.message);
 });
 
 app.use(async (ctx, next) => {
-  ctx.body = "Hello Koa";
-  console.log(ctx);
-  await next();
-});
-
-app.use((ctx) => {
-  console.log(`${(ctx.duraions = Date.now())} ms`);
-  console.log(ctx.message);
+  ctx.body = "Hello Koa!, Now you are worked";
 });
 
 app.listen(port, () => {
