@@ -1,8 +1,10 @@
 const koa = require("koa");
 const bodyParser = require("koa-body-parser");
 const Validator = require("validatorjs");
+const Router = require("koa-router");
 
 const app = new koa();
+const router = new Router();
 
 const port = 3000;
 
@@ -14,31 +16,35 @@ const validRules = {
   Email: `email is required`,
 };
 
-app.use(async (ctx, next) => {
+const validRequest = async (ctx, next) => {
   const data = ctx.request.body;
   console.log("response Data", data);
 
   const validation = new Validator(data, validRules);
-  console.log(validation.passes());
   if (validation.passes()) {
-    ctx.body = `
-    Data is successfully saved! 
-    `;
     await next();
   } else {
-    ctx.response.status = 400;
-    console.log(ctx.response.status);
+    ctx.status = 400;
     ctx.body = {
       message: "validation failed",
-      Error: validation.errors.all(),
+      errors: validation.errors.all(),
     };
-    validation.errors.first("id");
   }
+};
+
+router.post("/register", validRequest, async (ctx) => {
+  ctx.status = 200;
+  console.log("status ", ctx.status);
+  ctx.body = { message: "Data is send Succesfully!" };
 });
 
-app.use(async (ctx, next) => {
-  ctx.status = 200;
+router.get("/", validRequest, async (ctx) => {
+  ctx.message;
+  ctx.body = "data is getting";
 });
+
+app.use(router.routes());
+app.use(router.allowedMethods());
 
 app.listen(port, () => {
   console.log(`Server running`);
